@@ -22,11 +22,6 @@ class MinatBakatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final minatList = toList(rekomendasi?['minat']);
     final bakatList = toList(rekomendasi?['bakat']);
-    final minatUtama = _firstLabel(minatList);
-    final bakatUtama = _firstLabel(bakatList);
-    final minatPct = _firstPct(minatList);
-    final bakatPct = _firstPct(bakatList);
-    final confidence = toDouble(rekomendasi?['confidence_score']);
     final analisis = rekomendasi?['analisis_tren']?.toString();
     final ringkasanNon = rekomendasi?['ringkasan_non_akademik']?.toString();
     final saran = rekomendasi?['saran_pengembangan']?.toString();
@@ -35,115 +30,122 @@ class MinatBakatScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
+        child: Column(
           children: [
-            _HeaderCard(
-              namaSiswa: namaSiswa,
-              tanggal: tanggal,
-              confidence: confidence,
-            ),
-            const SizedBox(height: 12),
-            _Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // Top bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
                 children: [
-                  const _SectionTitle(
-                    icon: Icons.star,
-                    title: 'Minat (Top 3)',
-                    color: Color(0xFF2563EB),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
                   ),
-                  const SizedBox(height: 8),
-                  _ChipWrap(items: minatList, tint: const Color(0xFF2563EB)),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Minat & Bakat',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (tanggal != null)
+                    Text(
+                      tanggal!,
+                      style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+
+            // Content
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  // --- Minat ---
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionTitle(
+                          icon: Icons.star_rounded,
+                          title: 'Minat (Top 3)',
+                          color: Color(0xFF2563EB),
+                        ),
+                        const SizedBox(height: 12),
+                        _ProgressList(items: minatList, tint: const Color(0xFF2563EB)),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  const _SectionTitle(
-                    icon: Icons.emoji_events,
-                    title: 'Bakat (Top 3)',
-                    color: Color(0xFFF59E0B),
+
+                  // --- Bakat ---
+                  _Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const _SectionTitle(
+                          icon: Icons.emoji_events_rounded,
+                          title: 'Bakat (Top 3)',
+                          color: Color(0xFFF59E0B),
+                        ),
+                        const SizedBox(height: 12),
+                        _ProgressList(items: bakatList, tint: const Color(0xFFF59E0B)),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  _ChipWrap(items: bakatList, tint: const Color(0xFFF59E0B)),
-                  const SizedBox(height: 16),
-                  _HighlightRow(
-                    label: 'Minat Utama',
-                    value: minatUtama ?? '-',
-                    suffix: minatPct == null ? null : '${minatPct.toStringAsFixed(0)}%',
-                  ),
-                  const SizedBox(height: 8),
-                  _HighlightRow(
-                    label: 'Bakat Potensial',
-                    value: bakatUtama ?? '-',
-                    suffix: bakatPct == null ? null : '${bakatPct.toStringAsFixed(0)}%',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            _Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _SectionTitle(
-                    icon: Icons.trending_up,
+                  const SizedBox(height: 12),
+
+                  // --- Ringkasan Akademik ---
+                  _ParagraphCard(
+                    icon: Icons.trending_up_rounded,
                     title: 'Ringkasan Akademik',
-                    color: Color(0xFF16A34A),
+                    color: const Color(0xFF16A34A),
+                    text: analisis,
                   ),
-                  const SizedBox(height: 8),
-                  Text(analisis ?? '-', style: const TextStyle(color: Color(0xFF475569))),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            _Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _SectionTitle(
-                    icon: Icons.group,
+                  const SizedBox(height: 12),
+
+                  // --- Ringkasan Non-Akademik ---
+                  _ParagraphCard(
+                    icon: Icons.groups_rounded,
                     title: 'Ringkasan Non-Akademik',
-                    color: Color(0xFF7C3AED),
+                    color: const Color(0xFF7C3AED),
+                    text: ringkasanNon,
                   ),
-                  const SizedBox(height: 8),
-                  Text(ringkasanNon ?? '-', style: const TextStyle(color: Color(0xFF475569))),
+                  const SizedBox(height: 12),
+
+                  // --- Saran Pengembangan ---
+                  _ParagraphCard(
+                    icon: Icons.lightbulb_rounded,
+                    title: 'Saran Pengembangan',
+                    color: const Color(0xFF0EA5E9),
+                    text: saran,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // --- Download button ---
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF16A34A),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () => _downloadPdf(context, rekomendasi, namaSiswa),
+                      icon: const Icon(Icons.download_rounded, color: Colors.white, size: 20),
+                      label: const Text(
+                        'Unduh Laporan (PDF)',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
-            ),
-            const SizedBox(height: 12),
-            _Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _SectionTitle(
-                    icon: Icons.lightbulb,
-                    title: 'Saran Pengembangan (AI)',
-                    color: Color(0xFF0EA5E9),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(saran ?? '-', style: const TextStyle(color: Color(0xFF475569))),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            SizedBox(
-              height: 46,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => _downloadPdf(context, rekomendasi, namaSiswa),
-                child: const Text(
-                  'Unduh Laporan Lengkap (PDF)',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Laporan berisi detail nilai, observasi non-akademik,\n'
-              'dan hasil analisis AI',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
             ),
           ],
         ),
@@ -173,89 +175,6 @@ class _Card extends StatelessWidget {
         ],
       ),
       child: child,
-    );
-  }
-}
-
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({
-    required this.namaSiswa,
-    required this.tanggal,
-    required this.confidence,
-  });
-
-  final String namaSiswa;
-  final String? tanggal;
-  final double? confidence;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.school, color: Color(0xFF2563EB)),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Hasil Analisis Minat & Bakat',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Halo, $namaSiswa!',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  confidence == null ? 'Keyakinan -' : 'Keyakinan ${confidence!.toStringAsFixed(0)}%',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (tanggal != null)
-                Text(
-                  '• $tanggal',
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
@@ -294,52 +213,8 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _HighlightRow extends StatelessWidget {
-  const _HighlightRow({
-    required this.label,
-    required this.value,
-    this.suffix,
-  });
-
-  final String label;
-  final String value;
-  final String? suffix;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(color: Color(0xFF64748B)),
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-        if (suffix != null) ...[
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              suffix!,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _ChipWrap extends StatelessWidget {
-  const _ChipWrap({required this.items, required this.tint});
+class _ProgressList extends StatelessWidget {
+  const _ProgressList({required this.items, required this.tint});
 
   final List<Map<String, dynamic>> items;
   final Color tint;
@@ -347,28 +222,50 @@ class _ChipWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const Text('-', style: TextStyle(color: Color(0xFF64748B)));
+      return const Text('Belum ada data', style: TextStyle(color: Color(0xFF94A3B8)));
     }
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    return Column(
       children: items.map((item) {
         final label = item['nama']?.toString() ?? '-';
-        final pct = toDouble(item['persentase']);
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: tint.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: tint.withOpacity(0.3)),
-          ),
-          child: Text(
-            pct == null ? label : '$label  ${pct.toStringAsFixed(0)}%',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: tint,
-            ),
+        final pct = toDouble(item['persentase']) ?? 0;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${pct.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: tint,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: pct / 100,
+                  minHeight: 6,
+                  backgroundColor: tint.withOpacity(0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(tint),
+                ),
+              ),
+            ],
           ),
         );
       }).toList(),
@@ -376,18 +273,114 @@ class _ChipWrap extends StatelessWidget {
   }
 }
 
-String? _firstLabel(List<Map<String, dynamic>> list) {
-  if (list.isNotEmpty) {
-    return list.first['nama']?.toString();
+class _ParagraphCard extends StatelessWidget {
+  const _ParagraphCard({
+    required this.icon,
+    required this.title,
+    required this.color,
+    required this.text,
+  });
+
+  final IconData icon;
+  final String title;
+  final Color color;
+  final String? text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x11000000),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SectionTitle(icon: icon, title: title, color: color),
+                    const SizedBox(height: 10),
+                    ..._buildBulletPoints(text, color),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
-  return null;
 }
 
-double? _firstPct(List<Map<String, dynamic>> list) {
-  if (list.isNotEmpty) {
-    return toDouble(list.first['persentase']);
+List<Widget> _buildBulletPoints(String? text, Color dotColor) {
+  if (text == null || text.trim().isEmpty) {
+    return [const Text('-', style: TextStyle(color: Color(0xFF94A3B8)))];
   }
-  return null;
+
+  // Split by ". " to create bullet points from sentences
+  final sentences = text
+      .split(RegExp(r'\.\s+'))
+      .map((s) => s.replaceAll(RegExp(r'\.$'), '').trim())
+      .where((s) => s.isNotEmpty)
+      .toList();
+
+  if (sentences.isEmpty) {
+    return [Text(text, style: const TextStyle(color: Color(0xFF475569), fontSize: 13, height: 1.5))];
+  }
+
+  return sentences.map((sentence) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: dotColor.withOpacity(0.7),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              '$sentence.',
+              style: const TextStyle(
+                color: Color(0xFF475569),
+                fontSize: 13,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }).toList();
 }
 
 Future<void> _downloadPdf(
