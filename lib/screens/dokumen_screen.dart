@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import '../services/api_client.dart';
 import '../services/auth_storage.dart';
 
@@ -56,12 +60,12 @@ class _DokumenScreenState extends State<DokumenScreen> {
     final file = result.files.first;
     if (file.path == null) return;
 
-    // Check size (max 5MB)
-    if ((file.size) > 5 * 1024 * 1024) {
+    // Check size (max 2MB)
+    if ((file.size) > 2 * 1024 * 1024) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('File terlalu besar. Maks 5MB.'),
+          content: Text('File terlalu besar. Maks 2MB.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -136,6 +140,44 @@ class _DokumenScreenState extends State<DokumenScreen> {
           content: Text(e.toString().replaceAll('Exception: ', '')),
           backgroundColor: Colors.red,
         ),
+      );
+    }
+  }
+
+  Future<void> _viewDocument(Map<String, dynamic> doc) async {
+    final url = doc['url'] as String?;
+    if (url == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('URL dokumen tidak ditemukan'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final filename = doc['nama_file'] ?? 'document';
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$filename');
+
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode != 200) throw Exception('Gagal mendownload file');
+
+      await file.writeAsBytes(response.bodyBytes);
+
+      if (!mounted) return;
+      Navigator.pop(context); // Close loading
+
+      await OpenFilex.open(file.path);
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal membuka dokumen: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -294,45 +336,48 @@ class _DokumenScreenState extends State<DokumenScreen> {
                                           BoxShadow(color: Color(0x11000000), blurRadius: 6, offset: Offset(0, 2)),
                                         ],
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              color: isPdf ? const Color(0xFFFEE2E2) : const Color(0xFFDBEAFE),
-                                              borderRadius: BorderRadius.circular(8),
+                                      child: InkWell(
+                                        onTap: () => _viewDocument(doc),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 40,
+                                              height: 40,
+                                              decoration: BoxDecoration(
+                                                color: isPdf ? const Color(0xFFFEE2E2) : const Color(0xFFDBEAFE),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Icon(
+                                                isPdf ? Icons.picture_as_pdf : Icons.image,
+                                                color: isPdf ? const Color(0xFFDC2626) : const Color(0xFF2563EB),
+                                                size: 20,
+                                              ),
                                             ),
-                                            child: Icon(
-                                              isPdf ? Icons.picture_as_pdf : Icons.image,
-                                              color: isPdf ? const Color(0xFFDC2626) : const Color(0xFF2563EB),
-                                              size: 20,
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    doc['label'] ?? doc['jenis_dokumen'] ?? '',
+                                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    '${doc['nama_file']} • ${_formatSize(doc['size'])}',
+                                                    style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  doc['label'] ?? doc['jenis_dokumen'] ?? '',
-                                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  '${doc['nama_file']} • ${_formatSize(doc['size'])}',
-                                                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              ],
+                                            IconButton(
+                                              icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444), size: 20),
+                                              onPressed: () => _delete(doc['id'] as int, doc['label'] ?? ''),
                                             ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444), size: 20),
-                                            onPressed: () => _delete(doc['id'] as int, doc['label'] ?? ''),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     );
                                   },
