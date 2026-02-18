@@ -34,10 +34,15 @@ class InfoSekolahScreen extends StatelessWidget {
             _InfoCard(
               title: 'Informasi Umum',
               items: const [
-                _Item(Icons.school, 'Nama Sekolah', 'SDN CICADAS'),
-                _Item(Icons.pin_drop, 'Alamat', 'Jl. Cicadas, Bandung'),
-                _Item(Icons.phone, 'Telepon', '(022) xxxxxxx'),
-                _Item(Icons.email, 'Email', 'sdn.cicadas@email.com'),
+                _Item(Icons.school, 'Nama Sekolah', 'SD Negeri Cicadas'),
+                _Item(Icons.pin_drop, 'Alamat', 'Dsn. Cicadas RT 01 RW 02, Desa Cipasang, Kec. Cibugel, Kab. Sumedang, Jawa Barat 45375'),
+                _Item(Icons.phone, 'Telepon', '081394349581'),
+                _Item(Icons.email, 'Email', 'sdncicadas.asri@gmail.com'),
+                _Item(Icons.numbers, 'NPSN', '20233817'),
+                _Item(Icons.verified, 'Akreditasi', 'B'),
+                _Item(Icons.person, 'Kepala Sekolah', 'Dayat'),
+                _Item(Icons.menu_book, 'Kurikulum', 'Kurikulum SD Merdeka'),
+                _Item(Icons.calendar_today, 'Tahun Berdiri', '18 Februari 1974'),
               ],
             ),
             const SizedBox(height: 12),
@@ -55,6 +60,18 @@ class InfoSekolahScreen extends StatelessWidget {
                 'Mengembangkan potensi minat dan bakat siswa melalui kegiatan ekstrakurikuler.',
                 'Memanfaatkan teknologi informasi untuk mendukung proses pembelajaran.',
                 'Membentuk lingkungan sekolah yang aman, nyaman, dan kondusif.',
+              ],
+            ),
+            const SizedBox(height: 12),
+            _InfoCard(
+              title: 'Data Sekolah',
+              items: const [
+                _Item(Icons.people, 'Jumlah Guru', '8 orang'),
+                _Item(Icons.groups, 'Jumlah Siswa', '142 (L: 83, P: 59)'),
+                _Item(Icons.class_, 'Rombongan Belajar', '6'),
+                _Item(Icons.meeting_room, 'Ruang Kelas', '4'),
+                _Item(Icons.local_library, 'Perpustakaan', '1'),
+                _Item(Icons.landscape, 'Luas Tanah', '10.000 m²'),
               ],
             ),
           ],
@@ -90,7 +107,7 @@ class _HeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Text(
-                  'SDN CICADAS',
+                  'SD Negeri Cicadas',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -99,7 +116,7 @@ class _HeaderCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Sekolah Dasar Negeri',
+                  'Kec. Cibugel, Kab. Sumedang',
                   style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
