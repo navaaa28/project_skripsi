@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'graph_screen.dart';
 import 'info_sekolah_screen.dart';
+import 'dokumen_screen.dart';
 import 'transcript_screen.dart';
 import '../widgets/student_bottom_nav.dart';
 import 'minat_bakat_screen.dart';
@@ -120,6 +121,23 @@ class StudentDashboardScreen extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const InfoSekolahScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _MenuRow(
+                    children: [
+                      _MenuTile(
+                        icon: Icons.folder_outlined,
+                        label: 'Dokumen\nSaya',
+                        color: Color(0xFFEC4899),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const DokumenScreen(),
                             ),
                           );
                         },

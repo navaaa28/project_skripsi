@@ -61,6 +61,44 @@ class ApiClient {
     return res;
   }
 
+  Future<Map<String, dynamic>> getDokumen(String token) async {
+    final url = Uri.parse('$baseUrl/api/mobile/dokumen');
+    final res = await http.get(url, headers: _authHeaders(token));
+    if (res.statusCode != 200) {
+      throw Exception('Gagal mengambil dokumen.');
+    }
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> uploadDokumen(
+    String token, {
+    required String jenisDokumen,
+    required String filePath,
+    required String fileName,
+  }) async {
+    final url = Uri.parse('$baseUrl/api/mobile/dokumen');
+    final req = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..fields['jenis_dokumen'] = jenisDokumen
+      ..files.add(await http.MultipartFile.fromPath('file', filePath, filename: fileName));
+
+    final streamed = await req.send();
+    final body = await streamed.stream.bytesToString();
+    if (streamed.statusCode != 201) {
+      final msg = _extractMessage(body) ?? 'Gagal mengupload dokumen.';
+      throw Exception(msg);
+    }
+    return jsonDecode(body) as Map<String, dynamic>;
+  }
+
+  Future<void> deleteDokumen(String token, int id) async {
+    final url = Uri.parse('$baseUrl/api/mobile/dokumen/$id');
+    final res = await http.delete(url, headers: _authHeaders(token));
+    if (res.statusCode != 200) {
+      throw Exception('Gagal menghapus dokumen.');
+    }
+  }
+
   Map<String, String> _authHeaders(String token) => {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
