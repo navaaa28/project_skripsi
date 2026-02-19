@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _load();
   }
 
-  Future<void> _load() async {
+   Future<void> _load() async {
     setState(() {
       _loading = true;
       _error = null;
@@ -100,6 +100,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final siswa = _me?['siswa'] as Map<String, dynamic>?;
+    
+    // Parse wali kelas
+    String namaWali = '-';
+    if (siswa != null) {
+      final wali = siswa['wali_kelas'];
+      if (wali is Map) {
+        namaWali = wali['nama_guru']?.toString() ?? '-';
+      } else if (wali is String) {
+        namaWali = wali;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SMART CICADAS'),
@@ -134,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         rataRata: _avgSemesterLalu,
                         nilai: _nilai,
                         kelasAktif: siswa?['kelas'] ?? '-',
+                        waliKelas: namaWali,
                         rekomendasi: _rekomendasi,
                         onRefresh: _load,
                       ),
